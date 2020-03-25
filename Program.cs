@@ -14,6 +14,7 @@ namespace ADAB
         [STAThread]
         static void Main()
         {
+            UserConfig.ReadSettings();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
