@@ -418,5 +418,48 @@ namespace ADAB
                 }
             }
         }
+
+        private void notifyIcon1_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Visible = true;
+                this.Activate();
+                this.WindowState = FormWindowState.Normal;
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            notifyIcon1.Visible = false;
+            notifyIcon1.Dispose();
+        }
+
+        private void Form1_ResizeEnd(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Visible = !this.Visible;
+            }
+        }
+
+        private void tmrNotify_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                notifyIcon1.Icon = Icon;
+                notifyIcon1.Text = Application.ProductName;
+                notifyIcon1.Visible = true;
+            }
+            catch (Exception)
+            {
+                //throw;
+            }
+        }
     }
 }
