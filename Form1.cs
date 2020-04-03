@@ -199,6 +199,7 @@ namespace ADAB
             {
                 listBox1.Items.Add(item);
             }
+            label5.Text = "Адресная книга от " + cur.BookCreationDate.ToString()+ ":";
         }
 
         public void FillComboBox()
