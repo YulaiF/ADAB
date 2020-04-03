@@ -152,6 +152,7 @@ namespace ADAB
             LockItemInfoOnForm(!textBox1.ReadOnly);
             comboBox1.Enabled = textBox1.ReadOnly;
             ChangeItemButton.Enabled = textBox1.ReadOnly;
+            MoveItemButton.Enabled = textBox1.ReadOnly;
             DeleteItemButton.Enabled = textBox1.ReadOnly;
             listBox1.Enabled = textBox1.ReadOnly;
             AddItemButton.Text = textBox1.ReadOnly == true ? "Добавить" : "Отмена";
@@ -165,6 +166,7 @@ namespace ADAB
                 LockItemInfoOnForm(!textBox1.ReadOnly);
                 comboBox1.Enabled = textBox1.ReadOnly;
                 AddItemButton.Enabled = textBox1.ReadOnly;
+                MoveItemButton.Enabled = textBox1.ReadOnly;
                 ChangeItemButton.Text = textBox1.ReadOnly == true ? "Изменить" : "Отмена";
                 DeleteItemButton.Enabled = textBox1.ReadOnly;
                 listBox1.Enabled = textBox1.ReadOnly;
@@ -396,15 +398,16 @@ namespace ADAB
         {
             if (listBox1.SelectedIndex != -1)
             {
-                var currentItemID = textBox2.Text;
+                var currentItemID = textBox2.Text;                          //обнуляется 
+                var item = GetConnect_ItemFromListbox(currentItemID);       //после FillComboBox, 
+                var currentBook = (BookItem)comboBox1.SelectedItem;         //поэтому определяем в начале
+                var currentComboBoxIndexBook = comboBox1.SelectedIndex;
                 var selectForm = new frmSelectBook();
                 selectForm.ShowDialog();
                 FillComboBox();
                 var selectBook = selectForm.SELECTEDBOOK;
                 if (selectBook.BookName != "")
                 {
-                    var currentBook = (BookItem)comboBox1.SelectedItem;
-                    var item = GetConnect_ItemFromListbox(currentItemID); //обнуляется, поэтому определяем в начале // (Connect_Item)listBox1.SelectedItem;
                     InsertRecordToBook(selectBook, item);
 
                     var cmdDeleteItem = "DELETE FROM [" + currentBook.BookGUID + "] WHERE ID = '" + item.ID + "';";
@@ -417,6 +420,8 @@ namespace ADAB
                     comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
                     //comboBox1_SelectedIndexChanged(this, e);
                 }
+                else
+                    comboBox1.SelectedIndex=currentComboBoxIndexBook;//возвращаем просматриваемую книгу после обновления списка книг
             }
         }
 
