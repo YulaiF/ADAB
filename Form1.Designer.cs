@@ -57,6 +57,7 @@
             this.оПрограммеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label5 = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
+            this.MoveItemButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -83,7 +84,7 @@
             // AddItemButton
             // 
             this.AddItemButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.AddItemButton.Location = new System.Drawing.Point(289, 281);
+            this.AddItemButton.Location = new System.Drawing.Point(292, 245);
             this.AddItemButton.Name = "AddItemButton";
             this.AddItemButton.Size = new System.Drawing.Size(84, 29);
             this.AddItemButton.TabIndex = 9;
@@ -144,7 +145,7 @@
             // ChangeItemButton
             // 
             this.ChangeItemButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ChangeItemButton.Location = new System.Drawing.Point(289, 316);
+            this.ChangeItemButton.Location = new System.Drawing.Point(292, 280);
             this.ChangeItemButton.Name = "ChangeItemButton";
             this.ChangeItemButton.Size = new System.Drawing.Size(84, 29);
             this.ChangeItemButton.TabIndex = 10;
@@ -155,7 +156,7 @@
             // DeleteItemButton
             // 
             this.DeleteItemButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.DeleteItemButton.Location = new System.Drawing.Point(289, 351);
+            this.DeleteItemButton.Location = new System.Drawing.Point(292, 350);
             this.DeleteItemButton.Name = "DeleteItemButton";
             this.DeleteItemButton.Size = new System.Drawing.Size(84, 29);
             this.DeleteItemButton.TabIndex = 11;
@@ -226,7 +227,7 @@
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
-            this.выходToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.выходToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.выходToolStripMenuItem.Text = "Выход";
             this.выходToolStripMenuItem.Click += new System.EventHandler(this.выходToolStripMenuItem_Click);
             // 
@@ -286,7 +287,7 @@
             // оПрограммеToolStripMenuItem
             // 
             this.оПрограммеToolStripMenuItem.Name = "оПрограммеToolStripMenuItem";
-            this.оПрограммеToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.оПрограммеToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.оПрограммеToolStripMenuItem.Text = "О программе";
             this.оПрограммеToolStripMenuItem.Click += new System.EventHandler(this.оПрограммеToolStripMenuItem_Click);
             // 
@@ -307,11 +308,23 @@
             this.textBox4.Size = new System.Drawing.Size(214, 42);
             this.textBox4.TabIndex = 7;
             // 
+            // MoveItemButton
+            // 
+            this.MoveItemButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.MoveItemButton.Location = new System.Drawing.Point(292, 315);
+            this.MoveItemButton.Name = "MoveItemButton";
+            this.MoveItemButton.Size = new System.Drawing.Size(84, 29);
+            this.MoveItemButton.TabIndex = 21;
+            this.MoveItemButton.Text = "Переместить";
+            this.MoveItemButton.UseVisualStyleBackColor = true;
+            this.MoveItemButton.Click += new System.EventHandler(this.MoveItemButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(587, 424);
+            this.Controls.Add(this.MoveItemButton);
             this.Controls.Add(this.textBox4);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.menuStrip1);
@@ -373,6 +386,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem импортИзНедавнихСеансовToolStripMenuItem;
         private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Button MoveItemButton;
     }
 }
 

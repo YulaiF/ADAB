@@ -322,6 +322,7 @@ namespace ADAB
                     }
                     var findIndex = comboBox1.FindStringExact(selectBook.BookName);
                     comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
+                    comboBox1_SelectedIndexChanged(this, e);
                 }
             }
             else
@@ -388,6 +389,34 @@ namespace ADAB
         private void выходToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void MoveItemButton_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex != -1)
+            {
+                var currentItemID = textBox2.Text;
+                var selectForm = new frmSelectBook();
+                selectForm.ShowDialog();
+                FillComboBox();
+                var selectBook = selectForm.SELECTEDBOOK;
+                if (selectBook.BookName != "")
+                {
+                    var currentBook = (BookItem)comboBox1.SelectedItem;
+                    var item = GetConnect_ItemFromListbox(currentItemID); //обнуляется, поэтому определяем в начале // (Connect_Item)listBox1.SelectedItem;
+                    InsertRecordToBook(selectBook, item);
+
+                    var cmdDeleteItem = "DELETE FROM [" + currentBook.BookGUID + "] WHERE ID = '" + item.ID + "';";
+                    m_sqlCmd.CommandText = cmdDeleteItem;
+                    m_sqlCmd.ExecuteNonQuery();
+
+                    ClearItemInfoOnForm();
+
+                    var findIndex = comboBox1.FindStringExact(selectBook.BookName);
+                    comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
+                    //comboBox1_SelectedIndexChanged(this, e);
+                }
+            }
         }
     }
 }
