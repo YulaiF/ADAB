@@ -25,6 +25,17 @@ namespace ADAB
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            var cmdArgs = Environment.GetCommandLineArgs();
+            if (cmdArgs.Length >=2)
+            {
+                if (cmdArgs[1]==DEFAULTSTARTUPARGUMENT)
+                {
+                    WindowState = FormWindowState.Minimized;
+                    ShowInTaskbar = false;
+                    Visible = false;
+                }
+            }
+            автозагрузкаToolStripMenuItem.Checked = IsAutorunEnabled;
             Text = Application.ProductName;
             LockItemInfoOnForm(true);
             Database.dbFileName = "ADAB.db";
@@ -431,6 +442,7 @@ namespace ADAB
             {
                 this.Visible = true;
                 this.Activate();
+                ShowInTaskbar = true;
                 this.WindowState = FormWindowState.Normal;
             }
         }
@@ -441,10 +453,6 @@ namespace ADAB
             notifyIcon1.Dispose();
         }
 
-        private void Form1_ResizeEnd(object sender, EventArgs e)
-        {
-
-        }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
@@ -497,6 +505,11 @@ namespace ADAB
             }
             else
                 MessageBox.Show("Текущий адрес не найден");
+        }
+
+        private void автозагрузкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Autorun(автозагрузкаToolStripMenuItem.Checked);
         }
     }
 }
