@@ -321,7 +321,7 @@ namespace ADAB
                     var q = UserConfig.GetLastConnections();
                     foreach (var item in q)
                     {
-                        InsertRecordToBook(selectBook, item);
+                        InsertRecordToBook(selectBook, new Connect_Item(item.ID , item.adAlias, item.Name,"Добавлен через \"Импорт недавних сеансов\" \r\n "  + DateTime.Now.ToLongDateString().ToString() + " " + DateTime.Now.ToLongTimeString().ToString()));
                     }
                     var findIndex = comboBox1.FindStringExact(selectBook.BookName);
                     comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
@@ -466,6 +466,37 @@ namespace ADAB
             {
                 //throw;
             }
+        }
+
+        private void добавитьТекущийАдресToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(UserConfig.ConfigUserFile))
+            {
+                var suggestedIDName = System.Net.Dns.GetHostName();
+                var selectForm = new frmSelectBook();
+
+                selectForm.ShowDialog();
+                FillComboBox();
+                var selectBook = selectForm.SELECTEDBOOK;
+                if (selectBook.BookName != "")
+                {
+                    var thisID = UserConfig.GetThisID();
+                    
+                    if (thisID.ID != zeroConnectItem.ID)
+                    {
+                        var item = new Connect_Item(thisID.adAlias , thisID.ID ,suggestedIDName, "Добавлен через \"Текущий адрес\" \r\n" + DateTime.Now.ToLongDateString().ToString() + " " + DateTime.Now.ToLongTimeString().ToString());
+                        InsertRecordToBook(selectBook, item);
+                    }
+                    else
+                        MessageBox.Show("Текущий адрес не найден");
+
+                    var findIndex = comboBox1.FindStringExact(selectBook.BookName);
+                    comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
+                    comboBox1_SelectedIndexChanged(this, e);
+                }
+            }
+            else
+                MessageBox.Show("Текущий адрес не найден");
         }
     }
 }

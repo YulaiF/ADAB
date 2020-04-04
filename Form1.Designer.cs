@@ -61,6 +61,7 @@
             this.MoveItemButton = new System.Windows.Forms.Button();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.tmrNotify = new System.Windows.Forms.Timer(this.components);
+            this.добавитьТекущийАдресToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -169,7 +170,7 @@
             // 
             // SaveItemButton
             // 
-            this.SaveItemButton.Location = new System.Drawing.Point(498, 203);
+            this.SaveItemButton.Location = new System.Drawing.Point(498, 214);
             this.SaveItemButton.Name = "SaveItemButton";
             this.SaveItemButton.Size = new System.Drawing.Size(84, 29);
             this.SaveItemButton.TabIndex = 8;
@@ -241,7 +242,8 @@
             this.переименоватьКнигуToolStripMenuItem,
             this.удалитьКнигуToolStripMenuItem,
             this.toolStripSeparator1,
-            this.импортИзНедавнихСеансовToolStripMenuItem});
+            this.импортИзНедавнихСеансовToolStripMenuItem,
+            this.добавитьТекущийАдресToolStripMenuItem});
             this.qweqweqToolStripMenuItem.Name = "qweqweqToolStripMenuItem";
             this.qweqweqToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.qweqweqToolStripMenuItem.Text = "Сервис";
@@ -308,7 +310,8 @@
             this.textBox4.Location = new System.Drawing.Point(368, 155);
             this.textBox4.Multiline = true;
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(214, 42);
+            this.textBox4.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox4.Size = new System.Drawing.Size(214, 53);
             this.textBox4.TabIndex = 7;
             // 
             // MoveItemButton
@@ -333,6 +336,13 @@
             this.tmrNotify.Enabled = true;
             this.tmrNotify.Interval = 3000;
             this.tmrNotify.Tick += new System.EventHandler(this.tmrNotify_Tick);
+            // 
+            // добавитьТекущийАдресToolStripMenuItem
+            // 
+            this.добавитьТекущийАдресToolStripMenuItem.Name = "добавитьТекущийАдресToolStripMenuItem";
+            this.добавитьТекущийАдресToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
+            this.добавитьТекущийАдресToolStripMenuItem.Text = "Добавить текущий адрес...";
+            this.добавитьТекущийАдресToolStripMenuItem.Click += new System.EventHandler(this.добавитьТекущийАдресToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -406,6 +416,7 @@
         private System.Windows.Forms.Button MoveItemButton;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.Timer tmrNotify;
+        private System.Windows.Forms.ToolStripMenuItem добавитьТекущийАдресToolStripMenuItem;
     }
 }
 

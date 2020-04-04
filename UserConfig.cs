@@ -8,6 +8,8 @@ namespace ADAB
     public class UserConfig
     {
         public static string ConfigUserFile { get => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\AnyDesk\\user.conf"; }
+        public static string ConfigSystemFile { get => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\AnyDesk\\system.conf"; }
+
         public static List<Connect_Item> GetLastConnections()
         {
             var returnValue = new List<Connect_Item>();
@@ -40,6 +42,35 @@ namespace ADAB
             {
 
                 throw;
+            }
+
+            return returnValue;
+        }
+        public static Connect_Item GetThisID()
+        {
+            var returnValue = zeroConnectItem;
+
+            try
+            {
+                var stringid = "ad.anynet.id=";
+                if (File.Exists(ConfigUserFile))
+                {
+                    var allLinesFromFile = File.ReadAllLines(ConfigSystemFile);
+                    foreach (var search_roster_items in allLinesFromFile)
+                    {
+                        if (search_roster_items.Contains(stringid))
+                        {
+                            returnValue = new Connect_Item(search_roster_items.Replace(stringid, ""));
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+#if DEBUG
+                throw;
+#endif
             }
 
             return returnValue;
