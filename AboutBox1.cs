@@ -9,9 +9,15 @@ namespace ADAB
         public AboutBox1()
         {
             InitializeComponent();
+            var currentConfiguration = "";
+#if DEBUG
+            currentConfiguration = "Debug";
+#else
+            currentConfiguration = "Release";
+#endif
             this.Text = String.Format("О программе {0}", AssemblyTitle);
             this.labelProductName.Text = AssemblyProduct;
-            this.labelVersion.Text = String.Format("Версия {0}", AssemblyVersion);
+            this.labelVersion.Text = String.Format("Версия {0} {1}", AssemblyVersion, currentConfiguration);
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
             this.textBoxDescription.Text = AssemblyDescription;
