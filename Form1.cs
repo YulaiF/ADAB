@@ -80,8 +80,11 @@ namespace ADAB
 
         private void listBox1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            var conStr = (Connect_Item)listBox1.SelectedItem;
-            Start(conStr.ID);
+            if (!(listBox1.SelectedItem is null))
+            {
+                var conStr = (Connect_Item)listBox1.SelectedItem;
+                Start(conStr.ID);
+            }
         }
 
         private void Start(string ID)
