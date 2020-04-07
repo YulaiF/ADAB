@@ -124,6 +124,25 @@ namespace ADAB
             {
                 return BookName;
             }
+
+            public static bool operator !=(BookItem bookA, BookItem bookB)
+            {
+                return !(bookA == bookB);
+            }
+            public static bool operator ==(BookItem bookA, BookItem bookB)
+            {
+                return bookA.BookName == bookB.BookName && bookA.BookGUID == bookB.BookGUID && bookA.BookCreationDate == bookB.BookCreationDate;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return base.Equals(obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
         }
     }
 }

@@ -417,18 +417,21 @@ namespace ADAB
                 selectForm.ShowDialog();
                 FillComboBox();
                 var selectBook = selectForm.SELECTEDBOOK;
-                if (selectBook.BookName != "")
+                if (currentBook!=selectBook)
                 {
-                    InsertRecordToBook(selectBook, item);
-                    DeleteRecordInBook(currentBook, item);
+                    if (selectBook.BookName != "")
+                    {
+                        InsertRecordToBook(selectBook, item);
+                        DeleteRecordInBook(currentBook, item);
 
-                    ClearItemInfoOnForm();
-                    var findIndex = comboBox1.FindStringExact(selectBook.BookName);
-                    comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
-                    comboBox1_SelectedIndexChanged(this, e);
+                        ClearItemInfoOnForm();
+                        var findIndex = comboBox1.FindStringExact(selectBook.BookName);
+                        comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
+                        comboBox1_SelectedIndexChanged(this, e);
+                    }
+                    else
+                        comboBox1.SelectedIndex = currentComboBoxIndexBook; //возвращаем просматриваемую книгу после обновления списка книг
                 }
-                else
-                    comboBox1.SelectedIndex = currentComboBoxIndexBook;//возвращаем просматриваемую книгу после обновления списка книг
             }
         }
 
