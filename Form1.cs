@@ -194,10 +194,7 @@ namespace ADAB
                 if (MessageBox.Show("Удалить " + listBox1.SelectedItem.ToString() + "?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 {
                     var currentBook = (BookItem)comboBox1.SelectedItem;
-                    var cmdDeleteItem = "DELETE FROM [" + currentBook.BookGUID + "] WHERE ID = '" + ((Connect_Item)listBox1.SelectedItem).ID + "';";
-                    m_sqlCmd.CommandText = cmdDeleteItem;
-                    m_sqlCmd.ExecuteNonQuery();
-
+                    DeleteRecordInBook(currentBook, (Connect_Item)listBox1.SelectedItem);
                     ClearItemInfoOnForm();
                     comboBox1_SelectedIndexChanged(SaveItemButton, e);
                 }
@@ -423,19 +420,15 @@ namespace ADAB
                 if (selectBook.BookName != "")
                 {
                     InsertRecordToBook(selectBook, item);
-
-                    var cmdDeleteItem = "DELETE FROM [" + currentBook.BookGUID + "] WHERE ID = '" + item.ID + "';";
-                    m_sqlCmd.CommandText = cmdDeleteItem;
-                    m_sqlCmd.ExecuteNonQuery();
+                    DeleteRecordInBook(currentBook, item);
 
                     ClearItemInfoOnForm();
-
                     var findIndex = comboBox1.FindStringExact(selectBook.BookName);
                     comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
-                    //comboBox1_SelectedIndexChanged(this, e);
+                    comboBox1_SelectedIndexChanged(this, e);
                 }
                 else
-                    comboBox1.SelectedIndex=currentComboBoxIndexBook;//возвращаем просматриваемую книгу после обновления списка книг
+                    comboBox1.SelectedIndex = currentComboBoxIndexBook;//возвращаем просматриваемую книгу после обновления списка книг
             }
         }
 

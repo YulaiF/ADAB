@@ -345,5 +345,28 @@ namespace ADAB
             }
 
         }
+
+        /// <summary>
+        /// Удалить запись из книги
+        /// </summary>
+        /// <param name="book"></param>
+        /// <param name="connect_Item"></param>
+        public static void DeleteRecordInBook(BookItem book, Connect_Item connect_Item)
+        {
+            try
+            {
+                m_sqlCmd.Parameters.Add("@id", DbType.Int64).Value = connect_Item.ID;
+                var cmdDeleteItem = "DELETE FROM [" + book.BookGUID + "] WHERE ID = @id;";
+                m_sqlCmd.CommandText = cmdDeleteItem;
+                m_sqlCmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show("Error: \r\n" + ex.Message);
+#if DEBUG
+                throw new Exception(ex.Message);
+#endif 
+            }
+        }
     }
 }
