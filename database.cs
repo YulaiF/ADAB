@@ -8,7 +8,7 @@ using static ADAB.General;
 
 namespace ADAB
 {
-    public class Database
+    public static class Database
     {
         public static String dbFileName;
         public static SQLiteConnection m_dbConn;
@@ -56,22 +56,23 @@ namespace ADAB
             BookItem returnValue = new BookItem("");
 
             DataTable dTable = new DataTable();
-            String sqlQuery = "SELECT * FROM Books WHERE BookName = \"" + bookName + "\";";
+            m_sqlCmd.Parameters.Add("@bookname", DbType.StringFixedLength).Value = bookName;
+            m_sqlCmd.CommandText = "SELECT * FROM Books WHERE BookName = @bookname;";
 
             if (m_dbConn.State != ConnectionState.Open)
                 m_dbConn.Open();
 
             try
             {
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+                SQLiteDataAdapter adapter = new SQLiteDataAdapter(m_sqlCmd);
                 adapter.Fill(dTable);
 
                 if (dTable.Rows.Count > 0)
                 {
                     for (int i = 0; i < dTable.Rows.Count; i++)
                     {
-                        var guidDefaultTable = dTable.Rows[i].ItemArray;
-                        returnValue = new BookItem(Guid.Parse(guidDefaultTable[0].ToString()), guidDefaultTable[1].ToString(), guidDefaultTable[2].ToString());
+                        var guidTable = dTable.Rows[i].ItemArray;
+                        returnValue = new BookItem(Guid.Parse(guidTable[0].ToString()), guidTable[1].ToString(), guidTable[2].ToString());
                     }
                 }
             }
@@ -96,6 +97,8 @@ namespace ADAB
             bool returnValue = false;
 
             DataTable dTable = new DataTable();
+            //m_sqlCmd.Parameters.Add("@tableName", DbType.String).Value = tableName;
+            //var cmdCheckTable = "SELECT name FROM sqlite_master WHERE type='table' AND name=@tableName;";
             var cmdCheckTable = "SELECT name FROM sqlite_master WHERE type='table' AND name=\"" + tableName + "\";";
             if (m_dbConn.State != ConnectionState.Open)
                 m_dbConn.Open();
@@ -133,14 +136,15 @@ namespace ADAB
             bool returnValue = false;
 
             DataTable dTable = new DataTable();
-            String sqlQuery = "SELECT BookGUID FROM Books WHERE BookName = \"" + recordName + "\";";
+            m_sqlCmd.Parameters.Add("@recordName", DbType.StringFixedLength).Value = recordName;
+            m_sqlCmd.CommandText = "SELECT BookGUID FROM Books WHERE BookName = '@recordName';";
 
             if (m_dbConn.State != ConnectionState.Open)
                 m_dbConn.Open();
 
             try
             {
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+                SQLiteDataAdapter adapter = new SQLiteDataAdapter(m_sqlCmd);
                 adapter.Fill(dTable);
 
                 if (dTable.Rows.Count > 0)
@@ -165,17 +169,21 @@ namespace ADAB
         /// <summary>
         /// Создать запись в Books с названем книги и создать таблицу с уникальным GUID
         /// </summary>
-        /// <param name="bookName"></param>
+        /// <param name="bookName">Название книги</param>
         public static void CreateNewBook(string bookName)
         {
             try
             {
                 var guidBook = Guid.NewGuid().ToString();
+                m_sqlCmd.Parameters.Add("@guidBook", DbType.StringFixedLength).Value = guidBook;
+                m_sqlCmd.Parameters.Add("@bookName", DbType.StringFixedLength).Value = bookName;
+                m_sqlCmd.Parameters.Add("@DateTimeNow", DbType.StringFixedLength).Value = DateTime.Now.ToShortDateString();
+
                 var cmdCreateBookTable = "CREATE TABLE IF NOT EXISTS[" + guidBook + "] (ALIAS STRING,ID INTEGER NOT NULL ON CONFLICT FAIL PRIMARY KEY ON CONFLICT FAIL, NAME STRING, COMMENT TEXT DEFAULT \"\" );";
                 m_sqlCmd.CommandText = cmdCreateBookTable;
                 m_sqlCmd.ExecuteNonQuery();
 
-                var cmdInsertBook = "INSERT INTO Books (BookGUID, BookName, BookCreationDate) VALUES(\"" + guidBook + "\",\"" + bookName + "\", \"" + DateTime.Now.ToShortDateString() + "\");";
+                var cmdInsertBook = "INSERT INTO Books (BookGUID, BookName, BookCreationDate) VALUES(@guidBook, @bookName, @DateTimeNow);";
                 m_sqlCmd.CommandText = cmdInsertBook;
                 m_sqlCmd.ExecuteNonQuery();
             }
@@ -201,7 +209,9 @@ namespace ADAB
                 m_sqlCmd.CommandText = cmdCreateBookTable;
                 m_sqlCmd.ExecuteNonQuery();
 
-                var cmdInsertBook = "DELETE FROM Books WHERE BookName=\"" + bookName + "\";";
+                m_sqlCmd.Parameters.Add("@bookName", DbType.StringFixedLength).Value = bookName;
+
+                var cmdInsertBook = "DELETE FROM Books WHERE BookName=@bookName;";
                 m_sqlCmd.CommandText = cmdInsertBook;
                 m_sqlCmd.ExecuteNonQuery();
             }
@@ -223,12 +233,18 @@ namespace ADAB
         {
             try
             {
-                var cmdAddOItemIntoTable2 = "INSERT INTO [" + book.BookGUID + "] (ALIAS, ID, NAME, COMMENT) SELECT '" +
-                                        connect_Item.adAlias + "'," +
-                                        connect_Item.ID + ",'" +
-                                        connect_Item.Name + "','" +
-                                        connect_Item.Comment +
-                                        "' WHERE NOT EXISTS (SELECT 1 FROM [" + book.BookGUID + "] WHERE ID = " + connect_Item.ID + ");";
+                //m_sqlCmd.Parameters.Add("@bookguid", DbType.StringFixedLength).Value = book.BookGUID;
+                m_sqlCmd.Parameters.Add("@alias", DbType.StringFixedLength).Value = connect_Item.adAlias;
+                m_sqlCmd.Parameters.Add("@id", DbType.Int64).Value = connect_Item.ID;
+                m_sqlCmd.Parameters.Add("@name", DbType.StringFixedLength).Value = connect_Item.Name;
+                m_sqlCmd.Parameters.Add("@comment", DbType.StringFixedLength).Value = connect_Item.Comment;
+
+                var cmdAddOItemIntoTable2 = "INSERT INTO [" + book.BookGUID + "] (ALIAS, ID, NAME, COMMENT) SELECT " +
+                                        "@alias," +
+                                        "@id, " +
+                                        "@name" + "," +
+                                        "@comment" +
+                                        " WHERE NOT EXISTS (SELECT 1 FROM [" + book.BookGUID + "] WHERE ID=@id);";
                 m_sqlCmd.CommandText = cmdAddOItemIntoTable2;
                 m_sqlCmd.ExecuteNonQuery();
             }
@@ -240,14 +256,21 @@ namespace ADAB
 #endif 
             }
         }
-
+        
+        /// <summary>
+        /// Переименовать книгу
+        /// </summary>
+        /// <param name="book">Старая книга</param>
+        /// <param name="newName">Новое имя книги</param>
         public static void RenameBook(BookItem book, string newName)
         {
             try
             {
-                var cmdChangeItemIntoTable = "UPDATE Books " +
-                                            "SET BookName = '" + newName + "' " +
-                                            "WHERE BookName = '" + book.BookName + "';";
+                m_sqlCmd.Parameters.Add("@newName", DbType.StringFixedLength).Value = newName;
+                m_sqlCmd.Parameters.Add("@oldBookName", DbType.StringFixedLength).Value = book.BookName;
+                var cmdChangeItemIntoTable = "UPDATE Books" +
+                                            " SET BookName = @newName" +
+                                            " WHERE BookName = @oldBookName;";
                 m_sqlCmd.CommandText = cmdChangeItemIntoTable;
                 m_sqlCmd.ExecuteNonQuery();
 
@@ -261,13 +284,20 @@ namespace ADAB
             }
         }
 
+        /// <summary>
+        /// Переименовать книгу
+        /// </summary>
+        /// <param name="oldBookName">Старое имя книги</param>
+        /// <param name="newName">Новое имя книги</param>
         public static void RenameBook(string oldBookName, string newName)
         {
             try
             {
+                m_sqlCmd.Parameters.Add("@newName", DbType.StringFixedLength).Value = newName;
+                m_sqlCmd.Parameters.Add("@oldBookName", DbType.Int32).Value = oldBookName;
                 var cmdChangeItemIntoTable = "UPDATE Books" +
-                                            "SET BookName = '" + newName + "'" +
-                                            "WHERE BookName = '" + oldBookName + "';";
+                                            "SET BookName = @newName" +
+                                            "WHERE BookName = @oldBookName;";
                 m_sqlCmd.CommandText = cmdChangeItemIntoTable;
                 m_sqlCmd.ExecuteNonQuery();
 
@@ -290,14 +320,18 @@ namespace ADAB
         {
             try
             {
+                m_sqlCmd.Parameters.Add("@alias", DbType.StringFixedLength).Value = connect_Item.adAlias;
+                m_sqlCmd.Parameters.Add("@id", DbType.Int64).Value = connect_Item.ID;
+                m_sqlCmd.Parameters.Add("@name", DbType.StringFixedLength).Value = connect_Item.Name;
+                m_sqlCmd.Parameters.Add("@comment", DbType.StringFixedLength).Value = connect_Item.Comment;
+
                 var cmdChangeItemIntoTable = "UPDATE [" + book.BookGUID + "] " +
                            "SET " +
-                           "ALIAS = '" + connect_Item.adAlias + "'," +
-                           "ID = '" + connect_Item.ID + "'," +
-                           "NAME = '" + connect_Item.Name + "', " +
-                           "COMMENT = '" + connect_Item.Comment + "' " +
-                           "WHERE ID = " + connect_Item.ID + ";";
-
+                           "ALIAS = @alias," +
+                           "ID = @id," +
+                           "NAME = @name, " +
+                           "COMMENT = @comment " +
+                           "WHERE ID = @id;";
                 m_sqlCmd.CommandText = cmdChangeItemIntoTable;
                 m_sqlCmd.ExecuteNonQuery();
 
