@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Mono.Data.Sqlite;
+using System;
 using System.Data;
-using System.Data.SQLite;
 using System.IO;
-using static ADAB.Logic;
 using static ADAB.General;
+using static ADAB.Logic;
 
 
 namespace ADAB
@@ -11,8 +11,8 @@ namespace ADAB
     public static class Database
     {
         public static String dbFileName;
-        public static SQLiteConnection m_dbConn;
-        public static SQLiteCommand m_sqlCmd;
+        public static SqliteConnection m_dbConn;
+        public static SqliteCommand m_sqlCmd;
 
         /// <summary>
         /// Создание базы и начальной книги адресов
@@ -20,13 +20,15 @@ namespace ADAB
         public static void CreateDataBase()
         {
             if (!File.Exists(dbFileName))
-                SQLiteConnection.CreateFile(dbFileName);
+                SqliteConnection.CreateFile(dbFileName);
 
             try
             {
-                m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;");
+                m_dbConn = new SqliteConnection("URI=file:" + dbFileName);//Data Source=file:SqliteTest.db
+                                                                          //m_dbConn = new SqliteConnection("Data Source=" + dbFileName + ";Version=3;");
+
                 m_dbConn.Open();
-                m_sqlCmd.Connection = m_dbConn;
+                m_sqlCmd = m_dbConn.CreateCommand();
 
                 var cmdCreateBooksTable = "CREATE TABLE IF NOT EXISTS Books (BookGUID STRING PRIMARY KEY,BookName STRING UNIQUE ON CONFLICT IGNORE NOT NULL, BookCreationDate STRING);";
                 m_sqlCmd.CommandText = cmdCreateBooksTable;
@@ -37,7 +39,7 @@ namespace ADAB
 
                 //lbStatusText.Text = "Connected";
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 System.Windows.Forms.MessageBox.Show("Error: \r\n" + ex.Message);
 #if DEBUG
@@ -64,7 +66,7 @@ namespace ADAB
 
             try
             {
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(m_sqlCmd);
+                SqliteDataAdapter adapter = new SqliteDataAdapter(m_sqlCmd);
                 adapter.Fill(dTable);
 
                 if (dTable.Rows.Count > 0)
@@ -76,7 +78,7 @@ namespace ADAB
                     }
                 }
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 System.Windows.Forms.MessageBox.Show("Error: \r\n" + ex.Message);
 #if DEBUG
@@ -105,7 +107,7 @@ namespace ADAB
 
             try
             {
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmdCheckTable, m_dbConn);
+                SqliteDataAdapter adapter = new SqliteDataAdapter(cmdCheckTable, m_dbConn);
                 adapter.Fill(dTable);
                 if (dTable.Rows.Count > 0)
                 {
@@ -116,7 +118,7 @@ namespace ADAB
                     }
                 }
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 System.Windows.Forms.MessageBox.Show("Error: \r\n" + ex.Message);
 #if DEBUG
@@ -136,6 +138,7 @@ namespace ADAB
             bool returnValue = false;
 
             DataTable dTable = new DataTable();
+            //var m_sqlCmd = new SqliteCommand();
             m_sqlCmd.Parameters.Add("@recordName", DbType.StringFixedLength).Value = recordName;
             m_sqlCmd.CommandText = "SELECT BookGUID FROM Books WHERE BookName = '@recordName';";
 
@@ -144,8 +147,24 @@ namespace ADAB
 
             try
             {
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(m_sqlCmd);
+                ////m_sqlCmd = m_dbConn.CreateCommand();
+                //var reader = m_sqlCmd.ExecuteReader();
+                //while (reader.Read())
+                //{
+                //    string firstName = reader.GetString(0);
+                //    Console.WriteLine("Name: {0} {1}",
+                //        firstName, lastName);
+                //}
+                //// clean up
+                //reader.Dispose();
+                //m_sqlCmd.Dispose();
+                ////m_sqlCmd.Close();
+
+                SqliteDataAdapter adapter = new SqliteDataAdapter();
+                adapter.SelectCommand = m_sqlCmd;
+
                 adapter.Fill(dTable);
+
 
                 if (dTable.Rows.Count > 0)
                 {
@@ -156,14 +175,14 @@ namespace ADAB
                     }
                 }
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 System.Windows.Forms.MessageBox.Show("Error: \r\n" + ex.Message);
 #if DEBUG
                 throw new Exception(ex.Message);
 #endif 
             }
-                return returnValue;
+            return returnValue;
         }
 
         /// <summary>
@@ -174,6 +193,7 @@ namespace ADAB
         {
             try
             {
+                m_sqlCmd = m_dbConn.CreateCommand();
                 var guidBook = Guid.NewGuid().ToString();
                 m_sqlCmd.Parameters.Add("@guidBook", DbType.StringFixedLength).Value = guidBook;
                 m_sqlCmd.Parameters.Add("@bookName", DbType.StringFixedLength).Value = bookName;
@@ -204,6 +224,7 @@ namespace ADAB
         {
             try
             {
+                // передавать сразу книгу
                 var Book = GetBookByName(bookName);
                 var cmdCreateBookTable = "DROP TABLE IF EXISTS[" + Book.BookGUID + "];";
                 m_sqlCmd.CommandText = cmdCreateBookTable;
@@ -256,7 +277,7 @@ namespace ADAB
 #endif 
             }
         }
-        
+
         /// <summary>
         /// Переименовать книгу
         /// </summary>
@@ -336,7 +357,7 @@ namespace ADAB
                 m_sqlCmd.ExecuteNonQuery();
 
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 System.Windows.Forms.MessageBox.Show("Error: \r\n" + ex.Message);
 #if DEBUG

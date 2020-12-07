@@ -30,11 +30,13 @@ namespace ADAB
                             break;
                         }
                     }
-
-                    foreach (var connection in LastConnections)
+                    if (LastConnections[0] != "")
                     {
-                        var currentRosterItem = new Logic.Connect_Item(connection);
-                        returnValue.Add(currentRosterItem);
+                        foreach (var connection in LastConnections)
+                        {
+                            var currentRosterItem = new Logic.Connect_Item(connection);
+                            returnValue.Add(currentRosterItem);
+                        }
                     }
                 }
             }

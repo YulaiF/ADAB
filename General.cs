@@ -10,6 +10,10 @@ namespace ADAB
     /// </summary>
     public static class General
     {
+        public static readonly PlatformID platformID = Environment.OSVersion.Platform;
+        public static readonly bool is64BitOperatingSystem = Environment.Is64BitOperatingSystem;
+
+
         public static string ExecutableFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "AnyDesk\\AnyDesk.exe");
 
         /// <summary>
@@ -17,7 +21,7 @@ namespace ADAB
         /// </summary>
         public const string DEFAULTBOOKNAME = "Default";
         public const string DEFAULTSTARTUPARGUMENT = "/autorun";
-
+       
         /// <summary>
         /// Проверка входных данных на принадлежность к числовому типу
         /// </summary>

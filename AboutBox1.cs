@@ -17,7 +17,7 @@ namespace ADAB
 #endif
             this.Text = String.Format("О программе {0}", AssemblyTitle);
             this.labelProductName.Text = AssemblyProduct;
-            this.labelVersion.Text = String.Format("Версия {0} {1}", AssemblyVersion, currentConfiguration);
+            this.labelVersion.Text = String.Format("Версия {0} {1} ({2} {3})", AssemblyVersion, currentConfiguration, General.platformID, General.is64BitOperatingSystem? "x64": "x86" );
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
             this.textBoxDescription.Text = AssemblyDescription;

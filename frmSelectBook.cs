@@ -1,8 +1,7 @@
-﻿using Microsoft.VisualBasic;
+﻿using Mono.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
 using System.Windows.Forms;
 using static ADAB.Database;
 using static ADAB.General;
@@ -49,7 +48,7 @@ namespace ADAB
             try
             {
                 sqlQuery = "SELECT * FROM Books;";
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+                var adapter = new SqliteDataAdapter(sqlQuery, m_dbConn);
                 adapter.Fill(dTable);
                 var ListBook = new List<Logic.BookItem>();
 
@@ -70,7 +69,7 @@ namespace ADAB
                     CreateNewBook(DEFAULTBOOKNAME);
                 comboBox1.SelectedIndex = 0;
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
 #if DEBUG
                 MessageBox.Show("Error: " + ex.Message);
@@ -82,7 +81,17 @@ namespace ADAB
         {
             if (comboBox1.SelectedItem.ToString() == "<<Создать новую книгу>>")
             {
-                var BookName = Interaction.InputBox("Введите название новой адресной книги", "Создать новую книгу", SUGGESTEDBOOKNAME);
+                var BookName = "";
+                using (var form = new frmCreateBook())
+                {
+                    form.suggestedBookName = SUGGESTEDBOOKNAME;
+                    var result = form.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        BookName = form.ReturnValue;
+                    }
+                }
+
                 if (BookName != "")
                 {
                     if (!IsRecordInBooksExists(BookName))

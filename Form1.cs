@@ -1,8 +1,7 @@
-﻿using Microsoft.VisualBasic;
+﻿using Mono.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -26,21 +25,30 @@ namespace ADAB
         private void Form1_Load(object sender, EventArgs e)
         {
             var cmdArgs = Environment.GetCommandLineArgs();
-            if (cmdArgs.Length >=2)
+            if (cmdArgs.Length >= 2)
             {
-                if (cmdArgs[1]==DEFAULTSTARTUPARGUMENT)
+                if (cmdArgs[1] == DEFAULTSTARTUPARGUMENT)
                 {
                     WindowState = FormWindowState.Minimized;
                     ShowInTaskbar = false;
                     Visible = false;
                 }
             }
-            автозагрузкаToolStripMenuItem.Checked = IsAutorunEnabled;
+
+            if (platformID == PlatformID.Win32NT)
+            {
+                автозагрузкаToolStripMenuItem.Checked = IsAutorunEnabled;
+            }
+            else
+                автозагрузкаToolStripMenuItem.Enabled = false;
+
             Text = Application.ProductName;
             LockItemInfoOnForm(true);
-            Database.dbFileName = "ADAB.db";
-            m_dbConn = new SQLiteConnection();
-            m_sqlCmd = new SQLiteCommand();
+
+            //MessageBox.Show(Application.StartupPath);
+            Database.dbFileName = Path.Combine(Application.StartupPath, "ADAB.db"); //"ADAB.db"
+            m_dbConn = new SqliteConnection();
+            m_sqlCmd = new SqliteCommand();
 
             CreateDataBase();
             FillComboBox();
@@ -212,7 +220,7 @@ namespace ADAB
             {
                 listBox1.Items.Add(item);
             }
-            label5.Text = "Адресная книга от " + cur.BookCreationDate.ToString()+ ":";
+            label5.Text = "Адресная книга от " + cur.BookCreationDate.ToString() + ":";
         }
 
         public void FillComboBox()
@@ -229,7 +237,7 @@ namespace ADAB
             try
             {
                 sqlQuery = "SELECT * FROM Books;";
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+                SqliteDataAdapter adapter = new SqliteDataAdapter(sqlQuery, m_dbConn);
                 adapter.Fill(dTable);
                 var ListBook = new List<Logic.BookItem>();
 
@@ -250,7 +258,7 @@ namespace ADAB
                     CreateNewBook(DEFAULTBOOKNAME);
                 comboBox1.SelectedIndex = 0;
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
 #if DEBUG
                 MessageBox.Show("Error: " + ex.Message);
@@ -273,7 +281,7 @@ namespace ADAB
             try
             {
                 sqlQuery = "SELECT * FROM [" + bookguid + "];";
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+                SqliteDataAdapter adapter = new SqliteDataAdapter(sqlQuery, m_dbConn);
                 adapter.Fill(dTable);
 
                 if (dTable.Rows.Count > 0)
@@ -288,7 +296,7 @@ namespace ADAB
                 //else
                 //MessageBox.Show("Database is empty");
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
             }
@@ -332,7 +340,7 @@ namespace ADAB
                     var q = UserConfig.GetLastConnections();
                     foreach (var item in q)
                     {
-                        InsertRecordToBook(selectBook, new Connect_Item(item.ID , item.adAlias, item.Name,"Добавлен через \"Импорт недавних сеансов\" \r\n "  + DateTime.Now.ToLongDateString().ToString() + " " + DateTime.Now.ToLongTimeString().ToString()));
+                        InsertRecordToBook(selectBook, new Connect_Item(item.ID, item.adAlias, item.Name, "Добавлен через \"Импорт недавних сеансов\" \r\n " + DateTime.Now.ToLongDateString().ToString() + " " + DateTime.Now.ToLongTimeString().ToString()));
                     }
                     var findIndex = comboBox1.FindStringExact(selectBook.BookName);
                     comboBox1.SelectedIndex = findIndex != -1 ? findIndex : 0;
@@ -345,7 +353,15 @@ namespace ADAB
 
         private void создатьНовуюКнигуToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var BookName = Interaction.InputBox("Введите название новой адресной книги", "Создать новую книгу");
+            var BookName = "";
+            using (var form = new frmCreateBook())
+            {
+                var result = form.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    BookName = form.ReturnValue;
+                }
+            }
             if (BookName != "")
             {
                 if (!IsRecordInBooksExists(BookName))
@@ -365,7 +381,19 @@ namespace ADAB
             var currentBook = (BookItem)comboBox1.SelectedItem;
             if (currentBook.BookName != DEFAULTBOOKNAME)
             {
-                var newBookName = Interaction.InputBox("Введите новое название адресной книги", "Переименовать книгу \"" + currentBook.BookName + "\"");
+                //var newBookName = Interaction.InputBox("Введите новое название адресной книги", "Переименовать книгу \"" + currentBook.BookName + "\"");
+
+                var newBookName = "";
+                using (var form = new frmCreateBook())
+                {
+                    form.Text = "Переименовать книгу \"" + currentBook.BookName + "\"";
+                    var result = form.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        newBookName = form.ReturnValue;
+                    }
+                }
+
                 if (newBookName != "")
                 {
                     if (!IsRecordInBooksExists(newBookName))
@@ -417,7 +445,7 @@ namespace ADAB
                 selectForm.ShowDialog();
                 FillComboBox();
                 var selectBook = selectForm.SELECTEDBOOK;
-                if (currentBook!=selectBook)
+                if (currentBook != selectBook)
                 {
                     if (selectBook.BookName != "")
                     {
@@ -488,10 +516,10 @@ namespace ADAB
                 if (selectBook.BookName != "")
                 {
                     var thisID = UserConfig.GetThisID();
-                    
+
                     if (thisID.ID != zeroConnectItem.ID)
                     {
-                        var item = new Connect_Item(thisID.adAlias , thisID.ID ,suggestedIDName, "Добавлен через \"Текущий адрес\" \r\n" + DateTime.Now.ToLongDateString().ToString() + " " + DateTime.Now.ToLongTimeString().ToString());
+                        var item = new Connect_Item(thisID.adAlias, thisID.ID, suggestedIDName, "Добавлен через \"Текущий адрес\" \r\n" + DateTime.Now.ToLongDateString().ToString() + " " + DateTime.Now.ToLongTimeString().ToString());
                         InsertRecordToBook(selectBook, item);
                     }
                     else
@@ -510,5 +538,6 @@ namespace ADAB
         {
             Autorun(автозагрузкаToolStripMenuItem.Checked);
         }
+
     }
 }
